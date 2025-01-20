@@ -135,7 +135,43 @@ process annotsv_annotation {
     ${ANNOTSV_DIR} -genomeBuild GRCh38 -SVinputFile truvari.vcf -outputFile annotsv -outputDir AnnotSV_output -SVinputInfo 1
     """
 }
+process knotsv_annotation_html {
+    cpus 2
+    maxForks 4
+    memory '20GB'
+    publishDir "knotsv_vcf"
+    input:
+        tuple path(annot_out), path(summary)
+    output:
+        tuple path(html_out), path("${html_out}.config")
+    script:
+    html_out = "KnotSV_dir/knotsv_output.html"
+    """
+    set -euxo pipefail
 
+    mkdir -p KnotSV_dir
+    perl /home/ale_sab/knotAnnotSV/knotAnnotSV.pl --configFile /home/ale_sab/knotAnnotSV/config_AnnotSV.yaml --annotSVfile ${annot_out} --outDir KnotSV_dir --outPrefix knotsv_output --genomeBuild GRCh38 --LOEUFcolorRange 1
+    """
+}
+
+process knotsv_annotation_xslm {
+    cpus 2
+    maxForks 4
+    memory '20GB'
+    publishDir "knotsv_vcf"
+    input:
+        tuple path(annot_out), path(summary)
+    output:
+        tuple path(xls_out), path("${xls_out}.config")
+    script:
+    xls_out = "KnotSV_dir/knotsv_output.xlsx"
+    """
+    set -euxo pipefail
+
+    mkdir -p KnotSV_dir
+    perl /home/ale_sab/knotAnnotSV/knotAnnotSV2XL.pl --configFile /home/ale_sab/knotAnnotSV/config_AnnotSV.yaml --annotSVfile ${annot_out} --outDir KnotSV_dir --outPrefix knotsv_output --genomeBuild GRCh38 --LOEUFcolorRange 1 --geneCountThreshold 40
+    """
+}
 process vep_annotation {
     cpus 2
     maxForks 4
